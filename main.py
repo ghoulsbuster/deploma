@@ -6,6 +6,32 @@ TOKEN = "5245318135:AAGg9yEYwhea8g1iCu-WYaZPMcYTtsU0SS4"
 bot = telebot.TeleBot(TOKEN)
 
 
+def add_numbers():
+    """ Команда должна попросить пользователя ввести два числа и сложить их
+
+    Программа просит число, затем еще одно число
+    Отправляет пользователю в ответ сумму этих двух чисел
+    :return:
+    """
+    pass
+
+
+def instruction():
+    pass
+
+
+def f():
+    pass
+
+
+class CommandContext:
+    COMMANDS = {
+        "Сложить два числа": add_numbers,
+        "Как пользоваться": instruction,
+        "Дай деняк": f,
+    }
+
+
 @bot.message_handler(content_types=["text"])
 def start(message):
     """Checks if user registered or not
@@ -25,14 +51,19 @@ def callback_worker(call):
 
 def main_menu(message):
     keyboard = telebot.types.ReplyKeyboardMarkup()
-    key_setup = telebot.types.KeyboardButton(
-        text="Настроить скрипт",
-    )
-    key_about = telebot.types.KeyboardButton(
-        text="Как пользоваться?",
-    )
-    keyboard.add(key_setup)
-    keyboard.add(key_about)
+
+    for element in CommandContext.COMMANDS:
+        key = telebot.types.KeyboardButton(element)
+        keyboard.add(key)
+
     bot.send_message(message.chat.id, reply_markup=keyboard, text="Выберите опцию")
+    bot.register_next_step_handler(message, action_context)
+
+
+def action_context(message):
+    text = CommandContext.COMMANDS[message.text]()
+    bot.send_message(message.chat.id, text)
+    main_menu(message)
+
 
 bot.polling(none_stop=True)
