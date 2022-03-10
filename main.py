@@ -20,15 +20,10 @@ def instruction():
     pass
 
 
-def f():
-    pass
-
-
 class CommandContext:
     COMMANDS = {
         "Сложить два числа": add_numbers,
         "Как пользоваться": instruction,
-        "Дай деняк": f,
     }
 
 
@@ -61,7 +56,11 @@ def main_menu(message):
 
 
 def action_context(message):
-    text = CommandContext.COMMANDS[message.text]()
+    try:
+        function_to_exec = CommandContext.COMMANDS[message.text]
+        text = function_to_exec()
+    except KeyError:
+        text = "Выберите опцию на клавиатуре!"
     bot.send_message(message.chat.id, text)
     main_menu(message)
 
